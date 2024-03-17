@@ -36,6 +36,7 @@ const AboutCards = () => {
     productData;
 
   const imageList = productData?.imgags || [];
+  console.log(imageList);
   useEffect(() => {
     const imgElements = imageList.map((item, index) => (
       <img

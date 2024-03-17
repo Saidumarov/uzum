@@ -162,9 +162,13 @@
 }
 
 .img-Itme {
-  height: 100%;
+  height: 91.6%;
   margin-right: 5px;
   margin-top: 25px;
+  overflow-x: scroll;
+}
+.img-Itme::-webkit-scrollbar {
+  display: none;
 }
 
 .tavar2 {
@@ -985,9 +989,25 @@ abbr span {
     display: flex;
   }
 }
+@media screen and (max-width: 1100px) {
+  .imgscrool {
+    height: 500px;
+  }
+  .img-Itme {
+    height: 79%;
+  }
+}
 @media screen and (max-width: 850px) {
   .tavar {
     margin-top: 50px;
+  }
+  .imgscrool {
+    height: 450px;
+    width: 90%;
+  }
+  .img-Itme {
+    height: 71%;
+    width: 30%;
   }
 }
 
@@ -1061,6 +1081,11 @@ abbr span {
     width: 100%;
   }
 
+  .img-Itme {
+    height: 91.6%;
+    width: 100%;
+  }
+
   .narx111 {
     display: flex;
     position: fixed;
@@ -1122,7 +1147,7 @@ abbr span {
   }
 
   .imgscrool {
-    width: 90%;
+    width: 98%;
     height: 550px;
     margin-top: 25px;
     display: flex;
@@ -1236,9 +1261,13 @@ abbr span {
     width: 115px;
     height: 150px;
   }
+  .img-Itme {
+    height: 77%;
+    width: 100%;
+  }
 
   .imgscrool {
-    width: 90%;
+    width: 98%;
     height: 460px;
   }
 
@@ -1290,7 +1319,7 @@ abbr span {
   }
 
   .imgscrool {
-    width: 90%;
+    width: 98%;
     height: 370px;
   }
 
@@ -1299,6 +1328,9 @@ abbr span {
     height: 120px;
   }
 
+  .img-Itme {
+    height: 62%;
+  }
   .dar1 {
     display: block;
     height: 290px;
@@ -1475,13 +1507,12 @@ abbr span {
 
   .imgscrool {
     width: 95%;
-    height: 350px;
+    /* height: 350px; */
     /* background-color: #5d00d6; */
   }
 
   .img-Itme img {
     width: 90px;
-    height: 113.5px;
   }
 
   .imgsledr img {
@@ -1531,7 +1562,9 @@ abbr span {
     display: none;
   }
   .imgscrool {
-    margin-left: 10px;
+    display: block;
+    margin: 0 auto;
+    margin-top: 25px;
   }
 }
 

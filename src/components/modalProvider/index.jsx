@@ -18,10 +18,7 @@ function ModalProvider({ children }) {
   const [updateProduct, setUpdateProduct] = useState({
     name: "",
     user: "",
-    img: "",
-    img1: "",
-    img2: "",
-    imgags: "",
+    imgags: [],
     dec: "",
     price: "",
     piece: "",

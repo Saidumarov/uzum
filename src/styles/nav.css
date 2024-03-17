@@ -864,13 +864,17 @@
   }
 
   .kirsh1 {
-    width: 155px;
+    width: 100%;
     position: absolute;
     right: 20px;
     display: grid;
     grid-template-columns: auto auto auto;
-    justify-content: space-between;
+    justify-content: right;
     font-size: 15px;
+    gap: 3px;
+  }
+  .kirsh1 p {
+    cursor: pointer;
   }
 
   .barx {

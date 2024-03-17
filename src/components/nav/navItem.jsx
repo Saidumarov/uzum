@@ -92,8 +92,8 @@ const NavItme = () => {
           <div className="barlin">
             <div className="bar-x">{/* <img src={barax} alt="" /> */}</div>
             <div className="kirsh1">
-              <p onClick={() => navgatio("/signup")}>Kirish</p>/
-              <p onClick={() => navgatio("/signup")}>Ro'yxatdan o'tish</p>
+              <p onClick={login}>Kirish</p>/
+              <p onClick={login}>Ro'yxatdan o'tish</p>
             </div>
           </div>
           <div className="katalog1">

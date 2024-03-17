@@ -1,11 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Profil from "./profil";
 import { Modal } from "../../modalProvider";
 import SiteBarpage from "./sitebarpage";
 import x from "../../../assets/icons/savg/bar.svg";
+import { imageDb } from "../../../FirebaseImageUpload/Config";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { v4 } from "uuid";
 function ProfilAdd() {
   const apiUrl = import.meta.env.VITE_SOME_KEY;
   const {
@@ -20,13 +23,11 @@ function ProfilAdd() {
     sitebar,
     setSitebar,
   } = useContext(Modal);
+  //
   const [contact, setContact] = useState({
     name: "",
     user: "",
-    img: "",
-    img1: "",
-    img2: "",
-    imgags: "",
+    imgags: [],
     dec: "",
     price: "",
     piece: "",
@@ -34,7 +35,20 @@ function ProfilAdd() {
     old_price: "",
     type: "",
   });
-  // Update contact.imgags when contact.img, img1, or img2 changes
+  // post
+  const [img, setImg] = useState("");
+  const [img1, setImg1] = useState("");
+  const [img2, setImg2] = useState("");
+  const [img3, setImg3] = useState("");
+  const [imgUrl, setImgUrl] = useState([]);
+  // update
+  const [imgu, setImgu] = useState("");
+  const [imgu1, setImgu1] = useState("");
+  const [imgu2, setImgu2] = useState("");
+  const [imgu3, setImgu3] = useState("");
+  const [imgUrlu, setImgUrlu] = useState([]);
+
+  // post
   useEffect(() => {
     axios
       .get(`${apiUrl}contact`)
@@ -61,31 +75,24 @@ function ProfilAdd() {
 
     setContact((prev) => ({
       ...prev,
-      imgags: [
-        { img: contact?.img },
-        { img: contact?.img1 },
-        { img: contact?.img2 },
-      ],
       user: {
         id: userApi?._id || "",
       },
     }));
-  }, [contact.img, contact.img1, contact.img2]);
 
-  useEffect(() => {
-    setUpdateProduct((prev) => ({
-      ...prev,
-      imgags: [
-        { img: updateProduct.img },
-        { img: updateProduct.img1 },
-        { img: updateProduct.img2 },
-      ],
-    }));
-  }, [updateProduct.img, updateProduct.img1, updateProduct.img2]);
+    // /
+  }, [contact.name]);
+
+  // update hok
+
+  // update
 
   const updateProductHandler = async (id) => {
     try {
-      if (Object.values(updateProduct).some((val) => !val)) {
+      if (
+        Object.values(updateProduct).some((val) => !val) ||
+        updateProduct.imgags.length <= 2
+      ) {
         toast.error("To'liq ma'lumot kiriting");
       } else {
         await axios.put(`${apiUrl}put/${id}`, updateProduct);
@@ -95,9 +102,6 @@ function ProfilAdd() {
         setUpdateProduct({
           name: "",
           user: {},
-          img: "",
-          img1: "",
-          img2: "",
           imgags: [],
           dec: "",
           price: "",
@@ -106,6 +110,10 @@ function ProfilAdd() {
           old_price: "",
           type: "",
         });
+        setImgu("");
+        setImgu1("");
+        setImgu2("");
+        setImgu3("");
       }
     } catch (error) {
       console.error("Error updating product:", error);
@@ -121,35 +129,49 @@ function ProfilAdd() {
     }));
   };
 
+  useEffect(() => {
+    if (img !== "") {
+      const imgRef = ref(imageDb, `files/${v4()}`);
+      uploadBytes(imgRef, img).then((value) => {
+        getDownloadURL(value.ref).then((url) => {
+          setImgUrl((prevUrls) => [...prevUrls, url]);
+          setContact((prev) => ({
+            ...prev,
+            imgags: [...prev.imgags, { img: url }],
+          }));
+        });
+      });
+    }
+  }, [img]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validate fields
       if (
         Object.values(contact).some((val) => !val) ||
-        Object.values(contact.imgags).some((val) => !val)
+        contact.imgags.length <= 2
       ) {
         toast.error("To'liq ma'lumot kiriting");
       } else {
         const newProduct = { ...contact };
-
         await axios.post(`${apiUrl}newProduct`, newProduct);
         toast.success("Mahsulot qo'shildi");
-        // Reset contact state
         setContact({
           name: "",
           user: {},
-          img: "",
-          img1: "",
-          img2: "",
           imgags: [],
           dec: "",
           price: "",
           piece: "",
           per_month: "",
-          old_price: "",
+          old_price: " ",
           type: "",
         });
+        setImg("");
+        setImg1("");
+        setImg2("");
+        setImg3("");
+        // Reset contact state
       }
     } catch (error) {
       console.error("Error adding product:", error);
@@ -165,23 +187,36 @@ function ProfilAdd() {
     }));
   };
 
-  const [allImage, setAllImage] = useState(null);
-
   useEffect(() => {
-    getImage();
-  }, []);
-
-  const getImage = async () => {
-    try {
-      const result = await axios.get(`${apiUrl}product`);
-      setAllImage(result?.data);
-    } catch (error) {
-      console.error("Error fetching images:", error);
+    if (imgu !== "") {
+      const imgRef = ref(imageDb, `files/${v4()}`);
+      uploadBytes(imgRef, imgu).then((value) => {
+        getDownloadURL(value.ref).then((url) => {
+          setImgUrlu((prevUrls) => [...prevUrls, url]);
+          setUpdateProduct((prev) => ({
+            ...prev,
+            imgags: [...prev.imgags, { img: url }],
+          }));
+        });
+      });
     }
-  };
+  }, [imgu]);
+
   return (
     <>
-      <ToastContainer />
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        transition:Bounce
+      />
       <span className={`sitebar-ac1 ${sitebar ? "activ" : ""}`}>
         <SiteBarpage />
       </span>
@@ -213,7 +248,7 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="name"
                       type="text"
-                      value={contact.name}
+                      value={contact?.name}
                       className="form-control"
                       id="name"
                     />
@@ -227,7 +262,26 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="price"
                       type="number"
-                      value={contact.price}
+                      value={contact?.price}
+                      className="form-control"
+                    />
+                  </div>
+                  <div className="input-product">
+                    <span className="img_text"> Rasm 1</span>
+                    <label
+                      htmlFor="img"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {img1?.name}
+                    </label>
+                    <input
+                      id="img"
+                      onChange={(e) =>
+                        setImg(e.target.files[0], setImg1(e.target.files[0]))
+                      }
+                      name="img"
+                      type="file"
                       className="form-control"
                     />
                   </div>
@@ -240,46 +294,27 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="old_price"
                       type="number"
-                      value={contact.old_price}
+                      vlaue={contact.old_price}
                       className="form-control"
                     />
                   </div>
                   <div className="input-product">
-                    <label htmlFor="img" className="form-profil-label">
-                      Rasm 1
-                    </label>
-                    <input
-                      id="img"
-                      onChange={handleChange}
-                      name="img"
-                      type="text"
-                      value={contact.img}
-                      className="form-control"
-                    />
-                  </div>
-                  <div className="input-product">
-                    <label htmlFor="img1" className="form-profil-label">
-                      Rasm 2
+                    <span className="img_text"> Rasm 2</span>
+
+                    <label
+                      htmlFor="img1"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {img2?.name}
                     </label>
                     <input
                       id="img1"
-                      onChange={handleChange}
+                      onChange={(e) => (
+                        setImg(e.target.files[0]), setImg2(e.target.files[0])
+                      )}
                       name="img1"
-                      type="text"
-                      value={contact.img1}
-                      className="form-control"
-                    />
-                  </div>
-                  <div className="input-product">
-                    <label htmlFor="img2" className="form-profil-label">
-                      Rasm 3
-                    </label>
-                    <input
-                      id="img2"
-                      onChange={handleChange}
-                      name="img2"
-                      type="text"
-                      value={contact.img2}
+                      type="file"
                       className="form-control"
                     />
                   </div>
@@ -291,9 +326,29 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="piece"
                       type="number"
-                      value={contact.piece}
+                      value={contact?.piece}
                       className="form-control"
                       id="dona"
+                    />
+                  </div>
+                  <div className="input-product">
+                    <span className="img_text"> Rasm 3</span>
+
+                    <label
+                      htmlFor="img2"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {img3?.name}
+                    </label>
+                    <input
+                      id="img2"
+                      name="img2"
+                      type="file"
+                      onChange={(e) => (
+                        setImg(e.target.files[0]), setImg3(e.target.files[0])
+                      )}
+                      className="form-control"
                     />
                   </div>
                   <div className="input-product">
@@ -304,7 +359,7 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="per_month"
                       type="number"
-                      value={contact.per_month}
+                      value={contact?.per_month}
                       className="form-control"
                       id="bulib"
                     />
@@ -317,7 +372,7 @@ function ProfilAdd() {
                       onChange={handleChange}
                       name="dec"
                       type="text"
-                      value={contact.dec}
+                      value={contact?.dec}
                       className="form-control"
                       id="last"
                     ></textarea>
@@ -328,7 +383,7 @@ function ProfilAdd() {
                     </label>
                     <select
                       name="type"
-                      value={contact.type}
+                      value={contact?.type}
                       onChange={handleChange}
                       className="slect"
                       id="type"
@@ -369,7 +424,7 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="name"
                       type="text"
-                      value={updateProduct.name}
+                      value={updateProduct?.name}
                       className="form-control"
                       id="name"
                     />
@@ -383,7 +438,7 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="price"
                       type="number"
-                      value={updateProduct.price}
+                      value={updateProduct?.price}
                       className="form-control"
                     />
                   </div>
@@ -396,46 +451,67 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="old_price"
                       type="number"
-                      value={updateProduct.old_price}
+                      value={updateProduct?.old_price}
                       className="form-control"
                     />
                   </div>
+
                   <div className="input-product" id="input-product">
-                    <label htmlFor="img" className="form-profil-label">
-                      Rasm 1
+                    <span className="img_text"> Rasm 1</span>
+                    <label
+                      htmlFor="img"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {imgu1?.name}
                     </label>
                     <input
                       id="img"
-                      onChange={handleUpdate}
+                      onChange={(e) =>
+                        setImgu(e.target.files[0], setImgu1(e.target.files[0]))
+                      }
                       name="img"
-                      type="text"
-                      value={updateProduct.img}
+                      type="file"
                       className="form-control"
                     />
                   </div>
                   <div className="input-product" id="input-product">
-                    <label htmlFor="img1" className="form-profil-label">
-                      Rasm 2
+                    <span className="img_text"> Rasm 2</span>
+
+                    <label
+                      htmlFor="img1"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {imgu2?.name}
                     </label>
                     <input
                       id="img1"
-                      onChange={handleUpdate}
+                      onChange={(e) => (
+                        setImgu(e.target.files[0]), setImgu2(e.target.files[0])
+                      )}
                       name="img1"
-                      type="text"
-                      value={updateProduct.img1}
+                      type="file"
                       className="form-control"
                     />
                   </div>
                   <div className="input-product" id="input-product">
-                    <label htmlFor="img2" className="form-profil-label">
-                      Rasm 3
+                    <span className="img_text"> Rasm 3</span>
+
+                    <label
+                      htmlFor="img2"
+                      className="form-profil-label"
+                      id="imgg"
+                    >
+                      {imgu3?.name}
                     </label>
                     <input
                       id="img2"
-                      onChange={handleUpdate}
                       name="img2"
-                      type="text"
-                      value={updateProduct.img2}
+                      type="file"
+                      onChange={(e) => (
+                        setImgu(e.target.files[0]), setImgu3(e.target.files[0])
+                      )}
                       className="form-control"
                     />
                   </div>
@@ -447,7 +523,7 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="piece"
                       type="number"
-                      value={updateProduct.piece}
+                      value={updateProduct?.piece}
                       className="form-control"
                       id="dona"
                     />
@@ -461,7 +537,7 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="per_month"
                       type="number"
-                      value={updateProduct.per_month}
+                      value={updateProduct?.per_month}
                       className="form-control"
                       id="bulib"
                     />
@@ -475,7 +551,7 @@ function ProfilAdd() {
                       onChange={handleUpdate}
                       name="dec"
                       type="text"
-                      value={updateProduct.dec}
+                      value={updateProduct?.dec}
                       className="form-control"
                       id="last"
                     ></textarea>
@@ -487,7 +563,7 @@ function ProfilAdd() {
                     <span className="isclec">
                       <select
                         name="type"
-                        value={updateProduct.type}
+                        value={updateProduct?.type}
                         onChange={handleUpdate}
                         className="slect"
                         id="type"

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import myAxios from "../../../api/index";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Loading from "../../loading/loadingproducts";
@@ -23,15 +23,6 @@ function Profil() {
   useEffect(() => {
     setSet(false);
   });
-  const deleteProduct = async (id) => {
-    if (window.confirm("Bu mahsulotni oʻchirib tashlamoqchimisiz? ")) {
-      await myAxios.delete(`delete/` + id);
-      toast.error("Mahsulot o'chirildi ");
-      setTimeout(() => {
-        window.location.reload();
-      }, 600);
-    }
-  };
 
   const userLocalApi = localStorage?.getItem("contactApi");
 
@@ -43,9 +34,6 @@ function Profil() {
     setUpdateProduct({
       name: "",
       user: man,
-      img: "",
-      img1: "",
-      img2: "",
       imgags: "",
       dec: "",
       price: "",
@@ -64,10 +52,18 @@ function Profil() {
   };
   const { data: dataResponse, isLoading } = useQuery("posts", fetchPost);
 
+  const queryClient = useQueryClient();
+
+  const deleteProduct = async (id) => {
+    if (window.confirm("Bu mahsulotni oʻchirib tashlamoqchimisiz? ")) {
+      await myAxios.delete(`delete/` + id);
+      toast.error("Mahsulot o'chirildi ");
+      queryClient.invalidateQueries("posts");
+    }
+  };
   if (isLoading) {
     return <Loading />;
   }
-
   if (!dataResponse || dataResponse.length === 0) {
     return (
       <div className="profil-card">
@@ -103,7 +99,7 @@ function Profil() {
                         navigation={true}
                         modules={[Pagination, Navigation, Autoplay]}
                       >
-                        {item.imgags.map((url, imgIndex) => (
+                        {item?.imgags?.map((url, imgIndex) => (
                           <SwiperSlide key={imgIndex}>
                             <img
                               src={url?.img}

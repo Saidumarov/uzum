@@ -298,6 +298,22 @@
 .x-bar-ac {
   display: none;
 }
+#imgg {
+  width: 450px;
+  height: 45px;
+  margin: 0 auto;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid #e7e8e3;
+  outline: none;
+  background: #fff;
+  color: rgb(37, 35, 35);
+  font-size: 17px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  background-color: rgb(245, 247, 250);
+}
 
 // media
 
@@ -341,6 +357,10 @@
 }
 
 @media screen and (max-width: 1030px) {
+  #imgg {
+    width: 95%;
+    margin-bottom: 25px;
+  }
   .title-mahsulot {
     width: 95%;
     margin: 0 auto;
@@ -386,6 +406,10 @@
 }
 
 @media screen and (max-width: 510px) {
+  #imgg {
+    width: 95%;
+    margin-left: 20px;
+  }
   .title-mahsulot {
     padding-left: 0px;
     width: 100%;
@@ -404,6 +428,10 @@
   }
 }
 @media screen and (max-width: 460px) {
+  #imgg {
+    width: 90%;
+    margin-left: 20px;
+  }
   .mahsulot-kiritish {
     .foorm-input-w {
       .input-product {
@@ -506,4 +534,34 @@
     margin-top: -27px;
     margin-left: 270px;
   }
+}
+
+#img {
+  font-size: 18px;
+  border: none;
+  width: 450px;
+  display: block;
+  height: 45px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  border: 1px solid #e7e8e3;
+  outline: none;
+  background: #fff;
+  margin-top: 10px;
+  font-family: Roboto;
+  background-color: rgb(245, 247, 250);
+}
+input[type="file"] {
+  display: none !important;
+  border: none;
+}
+
+.img_text {
+  padding-left: 30px;
+  display: block;
+  line-height: 25px;
+}
+
+select {
+  font-size: 17px;
 }
