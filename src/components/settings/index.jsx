@@ -51,6 +51,7 @@ function Settings() {
   const logaut = () => {
     localStorage.removeItem("profilUser");
     navegit("/");
+    window.location.reload();
   };
 
   return (

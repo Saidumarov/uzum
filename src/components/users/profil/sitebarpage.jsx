@@ -1,13 +1,13 @@
 import React, { useContext, useState } from "react";
 import "../../../styles/sass/profil.scss";
 import logo from "../../../assets/icons/savg/uzum.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Modal } from "../../modalProvider";
 function SiteBarpage() {
   const { product, setProduct, setIsUpdate, setText, sitebar, setSitebar } =
     useContext(Modal);
   const [active, setActive] = useState(false);
-
+  const root = useNavigate();
   const userLocal = localStorage?.getItem("contactApi");
   const logonUserLocal = localStorage?.getItem("contacts");
 
@@ -24,7 +24,7 @@ function SiteBarpage() {
     localStorage.removeItem("user");
     localStorage.removeItem("contactApi");
     localStorage.removeItem("logonUser");
-    window.location.reload();
+    root("/");
   };
 
   return (

@@ -1,126 +1,37 @@
-import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "../../../styles/chilla.css";
 import baho from "../../../assets/icons/savg/baho.svg";
 import savat from "../../../assets/icons/savg/savat+.svg";
 import like from "../../../assets/icons/savg/lik.svg";
 import liki from "../../../assets/icons/savg/lik.png";
-import { Modal } from "../../modalProvider";
-const ProductCard = ({
-  _id,
-  imgags,
-  dec,
-  price,
-  per_month,
-  old_price,
-  name,
-  piece,
-}) => {
-  const [styl, setStyl] = useState(
-    localStorage.getItem(`styl-${_id}`) || "scale(1)"
-  );
-  const [bloc, setBloc] = useState(localStorage.getItem(`bloc-${_id}`) || "");
-  const { setLegth } = useContext(Modal);
-  const [dot, setDot] = useState(false);
-  useEffect(() => {
-    localStorage.setItem(`styl-${_id}`, styl);
-    localStorage.setItem(`bloc-${_id}`, bloc);
-  }, [_id, styl, bloc]);
-
-  const sevCard = (
-    _id,
-    imgags,
-    dec,
-    price,
-    per_month,
-    old_price,
-    name,
-    piece
-  ) => {
-    if (localStorage.getItem("card") === null) {
-      localStorage.setItem("card", JSON.stringify([]));
-    }
-
-    let data = JSON.parse(localStorage.getItem("card")) || [];
-
-    if (!Array?.isArray(data)) {
-      data = [];
-    }
-
-    if (!data.some((item) => item._id === _id)) {
-      data.push({ _id, imgags, dec, price, per_month, old_price, name, piece });
-
-      localStorage.setItem("card", JSON.stringify(data));
-    }
-    let dataa = localStorage?.getItem("card");
-    let dataAll = dataa ? JSON?.parse(dataa) : null;
-    setLegth(dataAll?.length);
-    localStorage.setItem("pas", JSON.stringify(dataAll?.length));
-  };
-
-  const lik1 = () => {
-    const likedProduct = {
-      _id,
-      imgags,
-      dec,
-      price,
-      per_month,
-      old_price,
-      name,
-      piece,
-    };
-
-    const likedProductsArray =
-      JSON.parse(localStorage.getItem("likedProducts")) || [];
-
-    if (!likedProductsArray.some((product) => product._id === _id)) {
-      likedProductsArray.push(likedProduct);
-
-      localStorage.setItem("likedProducts", JSON.stringify(likedProductsArray));
-    }
-
-    setStyl("scale(1.1)");
-    setBloc("block");
-    localStorage.setItem(`styl-${_id}`, "scale(1.1)");
-    localStorage.setItem(`bloc-${_id}`, "block");
-  };
-
-  const handleDeleteLikedProduct = () => {
-    const likedProductsArray =
-      JSON.parse(localStorage.getItem("likedProducts")) || [];
-
-    // Filter out the product with the current _id
-    const updatedLikedProductsArray = likedProductsArray.filter(
-      (product) => product._id !== _id
-    );
-
-    localStorage.setItem(
-      "likedProducts",
-      JSON.stringify(updatedLikedProductsArray)
-    );
-  };
+import useLikeStore from "../../../hooks/likes";
+import useCardStore from "../../../hooks/products.js";
+const ProductCard = (product) => {
+  const { _id, imgags, dec, price, per_month, old_price, name, piece } =
+    product;
+  const { likes, removeLike, addLike } = useLikeStore((state) => state);
+  const { addCard } = useCardStore((state) => state);
 
   const pirc = price?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   const old = old_price?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-  // console.log(dot);
 
-  useEffect(() => {
-    if (dec && dec?.length > 50) {
-      setDot(true);
-    }
-  }, [dec]);
   return (
     <div className="wrr">
-      <img src={like} alt="" className="lik" onClick={lik1} />
+      <img
+        src={like}
+        alt=""
+        className={`lik ${
+          likes && likes?.some((el) => el?._id === _id) ? "active" : ""
+        }`}
+        onClick={() => addLike(product)}
+      />
       <img
         src={liki}
         alt=""
-        className="liki"
-        onClick={() => {
-          setBloc("none");
-          handleDeleteLikedProduct();
-        }}
-        style={{ transform: styl, display: bloc }}
+        className={`liki ${
+          likes && likes?.some((el) => el?._id === _id) ? "active" : ""
+        }`}
+        onClick={() => removeLike(_id)}
       />
       <Link to={`/uzum/product/${_id}`} className="a">
         <div className="clas">
@@ -143,8 +54,7 @@ const ProductCard = ({
             </div>
             <div className="conimg-itme">
               <p className="bo">
-                {dec?.substring(0, 50)}
-                {dot ? "..." : ""}
+                {dec?.length > 50 ? dec?.substring(0, 50) + "..." : dec}
               </p>
               <div className="baho1">
                 <img src={baho} alt="" />
@@ -180,7 +90,7 @@ const ProductCard = ({
       <div
         className="sev"
         onClick={() => {
-          sevCard(_id, imgags, dec, price, per_month, old_price, name, piece);
+          addCard(product);
         }}
       >
         <img src={savat} alt="" />

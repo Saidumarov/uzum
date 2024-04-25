@@ -128,7 +128,7 @@
 
 .nav-item-input {
   border: 1px solid #d1d2d3;
-  width: 500px;
+  width: 590px;
   height: 40px;
   box-sizing: border-box;
   margin-left: 10px;
@@ -995,7 +995,7 @@
   }
 }
 
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 880px) {
   .nav-item-input {
     width: 95%;
     margin: 0px auto 0 auto;
@@ -1216,4 +1216,14 @@
       }
     }
   }
+}
+
+.navitme_w {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.navitme_w_item {
+  display: flex;
+  justify-content: space-between;
 }

@@ -103,9 +103,8 @@ function Orders() {
                   className="order_card_w"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {el?.img?.slice(0, 1)?.map((el, i) => (
-                    <img key={i} src={el?.img} alt="not found" />
-                  ))}
+                  <img src={el?.imgags[0].img} alt="" />
+
                   <div className="order_card_tavsif">
                     <div>
                       <p className="name">Nomi</p>

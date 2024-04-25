@@ -1,16 +1,26 @@
 import React, { useContext, useEffect, useState } from "react";
 import "../../styles/sass/checkout.scss";
 import { Modal } from "../modalProvider";
+import useCardStore from "../../hooks/products";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import LoadingProducts from "../loading/loadingproducts";
+import { useParams } from "react-router-dom";
 function Checkout() {
+  const botToken = "6805483507:AAEkBEiNwAK1OE7ZnrgNYa3tEFQsVZzhYjc"; // bot tokini
+  const chatId = 1121426146; // botning adminini idisi 2042795731
   const [loading, setLoading] = useState(false);
   const [loading1, setLoading1] = useState(true);
   const [name, setName] = useState(false);
   const [lasname, setLasame] = useState(false);
   const [number, setNumber] = useState(false);
   const [chek, setChek] = useState(false);
-  const [addToCart, setAddToCart] = useState([]);
-  const { setFixed, setActiveItem, setHig } = useContext(Modal);
-
+  const { setFixed, setActiveItem } = useContext(Modal);
+  const { cards } = useCardStore((state) => state);
+  const [subtotal, setSubtotal] = useState();
+  const [ialoading, setialoading] = useState(true);
+  const { id } = useParams();
+  const [data, setData] = useState([]);
   const [contact, setContact] = useState({
     name: "",
     lasname: "",
@@ -32,77 +42,107 @@ function Checkout() {
   };
 
   useEffect(() => {
+    let checkout_card = [];
+
+    // localStorage dan ma'lumotlarni olish
+    const checkout_card_str = localStorage.getItem("chaekout_card");
+    if (checkout_card_str) {
+      checkout_card = JSON.parse(checkout_card_str);
+    }
+
+    // Ma'lumotlarni `data`ga joylash
+    if (id === "products") {
+      setData(cards);
+    } else {
+      setData(checkout_card);
+    }
+  }, [id]);
+
+  useEffect(() => {
     setFixed(true);
     localStorage.setItem("text", JSON.stringify("Savat"));
     setActiveItem("Savat");
-    const cart = localStorage.getItem("cartdata");
-    const parsedCart = cart ? JSON.parse(cart) : [];
-    setAddToCart(parsedCart);
-  }, []);
+    const totalSubtotal = data?.reduce((acc, item) => {
+      return acc + item?.price * item?.count;
+    }, 0);
+    setSubtotal(totalSubtotal);
+    if (cards.length > 0) {
+      setTimeout(() => {
+        setialoading(false);
+      }, 600);
+    }
+  }, [data]);
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!contact.name || !contact.lasname || !contact.number || contact.chek) {
       if (!contact.name) setName(true);
       if (!contact.number) setNumber(true);
       if (!contact.lasname) setLasame(true);
       if (!contact.chek) setChek(true);
     } else {
-      const id = localStorage.getItem("id");
       setLoading1(false);
 
-      let zakas = localStorage.getItem("zakas");
+      // Rasmlarni yuborish
+      try {
+        for (const product of data) {
+          const imageUrl = product?.imgags[0]?.img;
+          const imageCaption = `Xaridor: ${
+            contact.name + " " + contact.lasname
+          }\nTelefon: ${contact.number}\n\nMahsulotlar:\n\Nomi: ${
+            product?.name
+          }\nNarxi: ${product?.price
+            ?.toString()
+            ?.replace(/\B(?=(\d{3})+(?!\d))/g, ".")} so'm\nTa'rif: ${
+            product?.dec
+          }\nTo'lov turi: ${product?.term || "Naxt"}\nOylik to'lov: ${
+            product?.monthly_payment || 0
+          } so'm\n\n`;
 
-      zakas = zakas ? JSON.parse(zakas) : [];
+          const response = await fetch(
+            `https://api.telegram.org/bot${botToken}/sendPhoto`,
+            {
+              method: "POST",
+              body: JSON.stringify({
+                chat_id: chatId,
+                photo: imageUrl,
+                caption: imageCaption,
+              }),
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-      zakas.push(...addToCart);
-
-      localStorage.setItem("zakas", JSON.stringify(zakas));
-
-      console.log(addToCart);
-      const { name, lasname, number } = contact;
-      const photoURLs = addToCart?.map(
-        (el) => el?.img?.slice(0, 1)?.map((a) => a?.img) || []
-      );
-      const p = addToCart?.map((el) => (el?.id === id ? el?.narx : el?.narx));
-      const a = addToCart?.map((el) => (el?.id === id ? el?.dec : el?.dec));
-      const c = addToCart?.map((el) => (el?.id === id ? el?.count : el?.count));
-
-      const botToken = "6805483507:AAEkBEiNwAK1OE7ZnrgNYa3tEFQsVZzhYjc"; // bot tokini
-      const chatId = 1121426146; // botning adminini idisi   2042795731
-
-      const caption = `Familyasi: ${lasname}\nIsmi: ${name}\nTelifon raqami: ${number}\nNarxi: ${p
-        ?.toString()
-        ?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")} so'm\nHaqida: ${a}\nNechta: ${
-        c || 1
-      }`;
-
-      const formData = new FormData();
-      formData.append("chat_id", chatId);
-      formData.append("photo", ...photoURLs);
-      formData.append("caption", caption);
-      fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-        method: "post",
-        body: formData,
-      })
-        .then((res) => res?.json())
-        .then((data) => {
-          setLoading(true);
-          setTimeout(() => {
-            setLoading1(true);
-            setLoading(false);
-          }, 1000);
-          setContact({
-            name: "",
-            lasname: "",
-            number: "",
-            chek: "",
-          });
+          if (!response.ok) {
+            toast.error("Xabar yuborishda xatolik yuz berdi!");
+            return;
+          }
+        }
+        toast.success("Buyrtma berildi !");
+        localStorage.setItem("zakas", JSON.stringify(data));
+        setLoading(true);
+        setTimeout(() => {
+          setLoading1(true);
+          setLoading(false);
+        }, 1000);
+        setContact({
+          name: "",
+          lasname: "",
+          number: "",
+          chek: "",
         });
+      } catch (error) {
+        console.error("Rasm yuborishda xatolik yuz berdi:", error);
+        toast.error("Rasm yuborishda xatolik yuz berdi!");
+      } finally {
+      }
     }
   };
 
   return (
-    <div>
+    <div className="checkout_w">
+      <ToastContainer />
+      {ialoading ? <LoadingProducts /> : ""}
       <div className="checkout">
         <div className="checkout_wrap">
           <h2>Buyurtma qabul qiluvchi:</h2>
@@ -168,6 +208,32 @@ function Checkout() {
             )}
           </button>
         </div>
+      </div>
+      <div className="checkout_cards">
+        {data?.map((el, i) => (
+          <div key={i} className="checkout_card">
+            <img src={el?.imgags[0].img} alt="" />
+            <div>
+              <p>
+                <b>{el?.name}</b>
+              </p>
+              <p>
+                {el?.dec.length > 30 ? el?.dec.slice(0, 30) + "..." : el.dec}
+              </p>
+              <p>
+                Narx :{" "}
+                {el?.price?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}{" "}
+                so'm
+              </p>
+              <p>Nechta : {el?.count}</p>
+            </div>
+          </div>
+        ))}
+
+        <p className="count">
+          Jami: {subtotal?.toString()?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}{" "}
+          so'm
+        </p>
       </div>
     </div>
   );

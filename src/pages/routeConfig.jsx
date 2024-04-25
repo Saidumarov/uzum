@@ -61,7 +61,7 @@ export const routes = [
   },
   {
     id: 10,
-    path: "/checkout",
+    path: "/checkout/:id",
     element: <CheckoutPage />,
   },
   {

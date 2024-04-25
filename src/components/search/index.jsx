@@ -6,7 +6,6 @@ import { useQuery } from "react-query";
 function Search() {
   const [data, setData] = useState([]);
   const [filter, setFilter] = useState([]);
-  // const [value, setValue] = useState();
   const { setLoading, setActiveItem, active1, setActive1 } = useContext(Modal);
   const navigat = useNavigate();
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import uzm1 from "../../assets/icons/savg/uzm1.svg";
 import uzm from "../../assets/icons/savg/uzm.svg";
 import katalog from "../../assets/icons/savg/kat.svg";
@@ -17,16 +17,15 @@ import { Link, useNavigate } from "react-router-dom";
 import SearchPage from "../../pages/SearchPage/index";
 import { Modal } from "../modalProvider";
 import SignUp from "../signUp";
+import useCardStore from "../../hooks/products";
+import { DeleteIc } from "../../constants";
 const NavItme = () => {
-  const { active, setActive, length, pas, setPas, setLegth, activee } =
-    useContext(Modal);
-  const [pass, setPass] = useState();
-  const [product, setProduct] = useState();
+  const { active, setActive, activee } = useContext(Modal);
   const [profil, setprofil] = useState("Kirish");
   const naviget = useNavigate();
+  const { removeCard, cards } = useCardStore((state) => state);
 
   let name = JSON.parse(localStorage.getItem("profilUser"));
-
   const login = () => {
     if (!name) {
       setActive(!active);
@@ -35,44 +34,7 @@ const NavItme = () => {
     }
   };
 
-  const [addToCart, setAddToCart] = useState([]);
-  const [add, setAdd] = useState();
   const navgatio = useNavigate();
-
-  const cartKey = "card";
-  const pasKey = "pas";
-
-  useEffect(() => {
-    const cart = localStorage.getItem(cartKey);
-    const parsedCart = cart ? JSON.parse(cart) : [];
-    setAddToCart(parsedCart);
-
-    const storedPas = localStorage.getItem(pasKey);
-    setPas(storedPas ? parseInt(storedPas, 10) : 0);
-    setTimeout(() => {
-      setAdd(addToCart);
-    }, 0);
-  }, [cartKey, pasKey && add]);
-
-  const remove = (id) => {
-    const updatedCart = addToCart?.filter((item) => item._id !== id);
-    localStorage.setItem(cartKey, JSON.stringify(updatedCart));
-    setAddToCart(updatedCart);
-    const updatedPas = pas - 1;
-    setPas(updatedPas);
-    setLegth(updatedPas);
-    localStorage.setItem(pasKey, updatedPas?.toString());
-  };
-
-  useEffect(() => {
-    let pas = localStorage.getItem("pas");
-    let pasAll = pas ? JSON?.parse(pas) : null;
-    setPass(pasAll);
-    let product = localStorage.getItem("card");
-    let productAll = product ? JSON?.parse(product) : null;
-    setProduct(productAll);
-    setPass(pasAll);
-  }, [length]);
 
   useEffect(() => {
     if (name) {
@@ -90,7 +52,7 @@ const NavItme = () => {
       <div className="navitme">
         <div className={`bar-menyu ${activee ? "activ" : ""}`}>
           <div className="barlin">
-            <div className="bar-x">{/* <img src={barax} alt="" /> */}</div>
+            <div className="bar-x"></div>
             <div className="kirsh1">
               <p onClick={login}>Kirish</p>/
               <p onClick={login}>Ro'yxatdan o'tish</p>
@@ -149,91 +111,83 @@ const NavItme = () => {
             </div>
           </div>
         </div>
-        <div className="uzm">
-          <Link to="/">
-            <img src={uzm} alt="" className="uzmm1" />
-            <img src={uzm1} alt="" className="uzmm" />
-          </Link>
-        </div>
-        <div className="katalog">
-          <img src={katalog} alt="" />
-          <p>Katalog</p>
-        </div>
-        <SearchPage />
-        <div className="kirsh" onClick={login}>
-          <img src={kirish} alt="" />
-          <p> {profil}</p>
-        </div>
-        <Link to={"/wishes"}>
-          <div className="sara">
-            <img src={layk} alt="" />
-            <p> Saralangan</p>
+        <div className="navitme_w">
+          <div className="uzm">
+            <Link to="/">
+              <img src={uzm} alt="" className="uzmm1" />
+              <img src={uzm1} alt="" className="uzmm" />
+            </Link>
           </div>
-        </Link>
-        <div className="savat-wrapper">
-          <div className="savat" onClick={() => navgatio("/cart")}>
-            <img src={savat} alt="" />
-            <p className="savatt"> Savat</p>
-            <p
-              className="pas"
-              style={{
-                backgroundColor: pass > 0 ? " rgb(111, 0, 255)" : "",
-              }}
-            >
-              {pass}
-            </p>
-          </div>
-          <div
-            className="savat-product"
-            style={{ display: pass > 0 ? "" : "none" }}
-          >
-            <div>
-              {product?.map((item, index) => (
-                <div className="product-card-pas" key={index}>
-                  <div onClick={() => navgatio(`/uzum/product/${item?._id}`)}>
-                    {item?.imgags?.slice(0, 1)?.map((url, imgIndex) => (
-                      <img
-                        key={imgIndex}
-                        src={url?.img}
-                        alt=""
-                        className="pas-img"
-                      />
-                    ))}
-                    <p className="dec-pas">{item?.dec?.substring(0, 45)}...</p>
-                    <p className="pic-pas">
-                      {item?.price
-                        ?.toString()
-                        ?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}{" "}
-                      so'm
-                    </p>
-                  </div>
-                  {addToCart?.slice(0, 1)?.map((el) => (
-                    <span
-                      key={el?._id}
-                      className="delete"
-                      onClick={() => remove(el?._id)}
-                    >
-                      <svg
-                        data-v-11fce24d=""
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        className="ui-icon "
-                      >
-                        <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
-                        <path fill="none" d="M0 0h24v24H0z"></path>
-                      </svg>
-                    </span>
-                  ))}
-                </div>
-              ))}
+          <div className="navitme_w_item">
+            <SearchPage />
+            <div className="kirsh" onClick={login}>
+              <img src={kirish} alt="" />
+              <p> {profil}</p>
             </div>
-            <Link to={"/cart"}>
-              <div className="savat-product1">
-                <p>Buyurtmani rasmilashtirish </p>
+            <Link to={"/wishes"}>
+              <div className="sara">
+                <img src={layk} alt="" />
+                <p> Saralangan</p>
               </div>
             </Link>
+            <div className="savat-wrapper">
+              <div className="savat" onClick={() => navgatio("/cart")}>
+                <img src={savat} alt="" />
+                <p className="savatt"> Savat</p>
+                <p
+                  className="pas"
+                  style={{
+                    backgroundColor:
+                      cards?.length > 0 ? " rgb(111, 0, 255)" : "",
+                  }}
+                >
+                  {cards?.length}
+                </p>
+              </div>
+              <div
+                className="savat-product"
+                style={{ display: cards?.length > 0 ? "" : "none" }}
+              >
+                <div>
+                  {cards?.map((item, index) => (
+                    <div className="product-card-pas" key={index}>
+                      <div
+                        onClick={() => navgatio(`/uzum/product/${item?._id}`)}
+                      >
+                        {item?.imgags?.slice(0, 1)?.map((url, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={url?.img}
+                            alt=""
+                            className="pas-img"
+                          />
+                        ))}
+                        <p className="dec-pas">
+                          {item?.dec?.substring(0, 45)}...
+                        </p>
+                        <p className="pic-pas">
+                          {item?.price
+                            ?.toString()
+                            ?.replace(/\B(?=(\d{3})+(?!\d))/g, " ")}{" "}
+                          so'm
+                        </p>
+                      </div>
+                      <span
+                        className="delete"
+                        onClick={() => removeCard(item?._id)}
+                      >
+                        <DeleteIc />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <Link to={"/checkout/products"}>
+                  <div className="savat-product1">
+                    <p>Buyurtmani rasmilashtirish </p>
+                  </div>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>
